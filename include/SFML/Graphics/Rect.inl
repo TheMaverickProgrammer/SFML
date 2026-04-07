@@ -32,6 +32,11 @@ namespace sf
 {
 ////////////////////////////////////////////////////////////
 template <typename T>
+constexpr Rect<T>::Rect(T left, T top, T width, T height) : position({left, top}, {width, height})
+{
+}
+
+template <typename T>
 constexpr Rect<T>::Rect(Vector2<T> thePosition, Vector2<T> theSize) : position(thePosition), size(theSize)
 {
 }
@@ -47,6 +52,12 @@ constexpr Rect<T>::operator Rect<U>() const
 
 
 ////////////////////////////////////////////////////////////
+template <typename T>
+constexpr bool Rect<T>::contains(T x, T y) const
+{
+	return contains(Vector2<T>{x, y});
+}
+
 template <typename T>
 constexpr bool Rect<T>::contains(Vector2<T> point) const
 {
@@ -67,6 +78,11 @@ constexpr bool Rect<T>::contains(Vector2<T> point) const
 
 
 ////////////////////////////////////////////////////////////
+template <typename T>
+constexpr bool Rect<T>::intersects(const Rect<T>& rectangle) const {
+	return findIntersection(rectangle).has_value();
+}
+
 template <typename T>
 constexpr std::optional<Rect<T>> Rect<T>::findIntersection(const Rect<T>& rectangle) const
 {

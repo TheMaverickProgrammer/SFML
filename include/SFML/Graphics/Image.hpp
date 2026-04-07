@@ -142,7 +142,8 @@ public:
     /// \param color Fill color
     ///
     ////////////////////////////////////////////////////////////
-    void resize(Vector2u size, Color color = Color::Black);
+    void create(unsigned int width, unsigned int height, Color color = Color::Black);
+    void create(Vector2u size, Color color = Color::Black);
 
     ////////////////////////////////////////////////////////////
     /// \brief Resize the image from an array of pixels
@@ -155,7 +156,8 @@ public:
     /// \param pixels Array of pixels to copy to the image
     ///
     ////////////////////////////////////////////////////////////
-    void resize(Vector2u size, const std::uint8_t* pixels);
+    void create(unsigned int width, unsigned int height, const std::uint8_t* pixels);
+    void create(Vector2u size, const std::uint8_t* pixels);
 
     ////////////////////////////////////////////////////////////
     /// \brief Load the image from a file on disk
@@ -297,6 +299,7 @@ public:
     /// \return `true` if the operation was successful, `false` otherwise
     ///
     ////////////////////////////////////////////////////////////
+    [[nodiscard]] bool copy(const Image& source, unsigned int destX, unsigned int destY, const IntRect& sourceRect = {}, bool applyAlpha = false);
     [[nodiscard]] bool copy(const Image& source, Vector2u dest, const IntRect& sourceRect = {}, bool applyAlpha = false);
 
     ////////////////////////////////////////////////////////////

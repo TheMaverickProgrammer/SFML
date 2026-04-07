@@ -34,6 +34,12 @@
 
 namespace sf
 {
+
+Sprite::Sprite() :
+	m_texture(NULL),
+	m_textureRect() {
+}
+
 ////////////////////////////////////////////////////////////
 Sprite::Sprite(const Texture& texture) : Sprite(texture, IntRect({0, 0}, Vector2i(texture.getSize())))
 {
@@ -51,7 +57,7 @@ Sprite::Sprite(const Texture& texture, const IntRect& rectangle) : m_texture(&te
 void Sprite::setTexture(const Texture& texture, bool resetRect)
 {
     // Recompute the texture area if requested
-    if (resetRect)
+    if (resetRect || (!m_texture && (m_textureRect == sf::IntRect())))
         setTextureRect(IntRect({0, 0}, Vector2i(texture.getSize())));
 
     // Assign the new texture
@@ -117,6 +123,8 @@ FloatRect Sprite::getGlobalBounds() const
 ////////////////////////////////////////////////////////////
 void Sprite::draw(RenderTarget& target, RenderStates states) const
 {
+    if(m_texture == nullptr) return;
+
     states.transform *= getTransform();
     states.texture        = m_texture;
     states.coordinateType = CoordinateType::Pixels;

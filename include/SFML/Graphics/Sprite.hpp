@@ -50,6 +50,8 @@ class Texture;
 class SFML_GRAPHICS_API Sprite : public Drawable, public Transformable
 {
 public:
+    Sprite();
+	
     ////////////////////////////////////////////////////////////
     /// \brief Construct the sprite from a source texture
     ///
@@ -145,12 +147,12 @@ public:
     /// The returned reference is const, which means that you can't
     /// modify the texture when you retrieve it with this function.
     ///
-    /// \return Reference to the sprite's texture
+    /// \return Pointer to the sprite's texture
     ///
     /// \see `setTexture`
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] const Texture& getTexture() const;
+    [[nodiscard]] const Texture* getTexture() const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the sub-rectangle of the texture displayed by the sprite
@@ -264,7 +266,8 @@ private:
 /// const sf::Texture texture("texture.png");
 ///
 /// // Create a sprite
-/// sf::Sprite sprite(texture);
+/// sf::Sprite sprite;
+/// sprite.setTexture(texture);
 /// sprite.setTextureRect({{10, 10}, {50, 30}});
 /// sprite.setColor({255, 255, 255, 200});
 /// sprite.setPosition({100.f, 25.f});

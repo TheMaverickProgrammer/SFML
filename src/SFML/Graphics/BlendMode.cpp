@@ -50,6 +50,15 @@ const BlendMode BlendMin(BlendMode::Factor::One, BlendMode::Factor::One, BlendMo
 const BlendMode BlendMax(BlendMode::Factor::One, BlendMode::Factor::One, BlendMode::Equation::Max);
 const BlendMode BlendNone(BlendMode::Factor::One, BlendMode::Factor::Zero, BlendMode::Equation::Add);
 
+BlendMode::BlendMode() :
+	colorSrcFactor(BlendMode::Factor::SrcAlpha),
+	colorDstFactor(BlendMode::Factor::OneMinusSrcAlpha),
+	colorEquation(BlendMode::Equation::Add),
+	alphaSrcFactor(BlendMode::Factor::One),
+	alphaDstFactor(BlendMode::Factor::OneMinusSrcAlpha),
+	alphaEquation(BlendMode::Equation::Add)
+	{
+	}
 
 ////////////////////////////////////////////////////////////
 BlendMode::BlendMode(Factor sourceFactor, Factor destinationFactor, Equation blendEquation) :

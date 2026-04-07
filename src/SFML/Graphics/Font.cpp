@@ -134,7 +134,7 @@ struct Font::FontHandles
 ////////////////////////////////////////////////////////////
 Font::Font(const std::filesystem::path& filename)
 {
-    if (!openFromFile(filename))
+    if (!loadFromFile(filename))
         throw Exception("Failed to open font from file");
 }
 
@@ -142,7 +142,7 @@ Font::Font(const std::filesystem::path& filename)
 ////////////////////////////////////////////////////////////
 Font::Font(const void* data, std::size_t sizeInBytes)
 {
-    if (!openFromMemory(data, sizeInBytes))
+    if (!loadFromMemory(data, sizeInBytes))
         throw Exception("Failed to open font from memory");
 }
 
@@ -150,13 +150,13 @@ Font::Font(const void* data, std::size_t sizeInBytes)
 ////////////////////////////////////////////////////////////
 Font::Font(InputStream& stream)
 {
-    if (!openFromStream(stream))
+    if (!loadFromStream(stream))
         throw Exception("Failed to open font from stream");
 }
 
 
 ////////////////////////////////////////////////////////////
-bool Font::openFromFile(const std::filesystem::path& filename)
+bool Font::loadFromFile(const std::filesystem::path& filename)
 {
     using namespace std::string_view_literals;
 
@@ -193,7 +193,7 @@ bool Font::openFromFile(const std::filesystem::path& filename)
 
 
 ////////////////////////////////////////////////////////////
-bool Font::openFromMemory(const void* data, std::size_t sizeInBytes)
+bool Font::loadFromMemory(const void* data, std::size_t sizeInBytes)
 {
     // Cleanup the previous resources
     cleanup();
@@ -219,7 +219,7 @@ bool Font::openFromMemory(const void* data, std::size_t sizeInBytes)
 
 
 ////////////////////////////////////////////////////////////
-bool Font::openFromStream(InputStream& stream)
+bool Font::loadFromStream(InputStream& stream)
 {
     // Make sure that the stream's reading position is at the beginning
     if (!stream.seek(0).has_value())

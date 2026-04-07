@@ -125,14 +125,14 @@ namespace sf
 ////////////////////////////////////////////////////////////
 Image::Image(Vector2u size, Color color)
 {
-    resize(size, color);
+    create(size, color);
 }
 
 
 ////////////////////////////////////////////////////////////
 Image::Image(Vector2u size, const std::uint8_t* pixels)
 {
-    resize(size, pixels);
+    create(size, pixels);
 }
 
 
@@ -161,7 +161,12 @@ Image::Image(InputStream& stream)
 
 
 ////////////////////////////////////////////////////////////
-void Image::resize(Vector2u size, Color color)
+void Image::create(unsigned int width, unsigned int height, Color color)
+{
+	create(Vector2u{width, height}, color);
+}
+
+void Image::create(Vector2u size, Color color)
 {
     if (size.x && size.y)
     {
@@ -197,7 +202,12 @@ void Image::resize(Vector2u size, Color color)
 
 
 ////////////////////////////////////////////////////////////
-void Image::resize(Vector2u size, const std::uint8_t* pixels)
+void Image::create(unsigned int width, unsigned int height, const std::uint8_t* pixels)
+{
+	create(Vector2u{width, height}, pixels);
+}
+
+void Image::create(Vector2u size, const std::uint8_t* pixels)
 {
     if (pixels && size.x && size.y)
     {
@@ -289,7 +299,7 @@ bool Image::loadFromFile(const std::filesystem::path& filename)
         if (const auto ptr = MallocPtr(qoi_decode(buffer.data(), static_cast<int>(streamSize), &formatDesc, 4)))
         {
             const Vector2u imageSize = {formatDesc.width, formatDesc.height};
-            resize(imageSize, static_cast<const uint8_t*>(ptr.get()));
+            create(imageSize, static_cast<const uint8_t*>(ptr.get()));
             return true;
         }
     }
@@ -300,7 +310,7 @@ bool Image::loadFromFile(const std::filesystem::path& filename)
     if (const auto ptr = StbPtr(
             stbi_load_from_callbacks(&callbacks, &file, &imageSize.x, &imageSize.y, &channels, STBI_rgb_alpha)))
     {
-        resize(Vector2u(imageSize), ptr.get());
+        create(Vector2u(imageSize), ptr.get());
         return true;
     }
 
@@ -326,7 +336,7 @@ bool Image::loadFromMemory(const void* data, std::size_t size)
             if (const auto ptr = MallocPtr(qoi_decode(data, static_cast<int>(size), &formatDesc, 4)))
             {
                 const Vector2u imageSize = {formatDesc.width, formatDesc.height};
-                resize(imageSize, static_cast<const uint8_t*>(ptr.get()));
+                create(imageSize, static_cast<const uint8_t*>(ptr.get()));
                 return true;
             }
         }
@@ -339,7 +349,7 @@ bool Image::loadFromMemory(const void* data, std::size_t size)
         if (const auto ptr = StbPtr(
                 stbi_load_from_memory(buffer, static_cast<int>(size), &imageSize.x, &imageSize.y, &channels, STBI_rgb_alpha)))
         {
-            resize(Vector2u(imageSize), ptr.get());
+            create(Vector2u(imageSize), ptr.get());
             return true;
         }
 
@@ -388,7 +398,7 @@ bool Image::loadFromStream(InputStream& stream)
             if (const auto ptr = MallocPtr(qoi_decode(buffer.data(), static_cast<int>(*readDataSize), &formatDesc, 4)))
             {
                 const Vector2u imageSize = {formatDesc.width, formatDesc.height};
-                resize(imageSize, static_cast<const uint8_t*>(ptr.get()));
+                create(imageSize, static_cast<const uint8_t*>(ptr.get()));
                 return true;
             }
         }
@@ -406,7 +416,7 @@ bool Image::loadFromStream(InputStream& stream)
     if (const auto ptr = StbPtr(
             stbi_load_from_callbacks(&callbacks, &stream, &imageSize.x, &imageSize.y, &channels, STBI_rgb_alpha)))
     {
-        resize(Vector2u(imageSize), ptr.get());
+        create(Vector2u(imageSize), ptr.get());
         return true;
     }
 

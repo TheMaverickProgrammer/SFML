@@ -61,6 +61,7 @@ public:
     /// \param size     Size of the rectangle
     ///
     ////////////////////////////////////////////////////////////
+    constexpr Rect(T left, T top, T width, T height);
     constexpr Rect(Vector2<T> position, Vector2<T> size);
 
     ////////////////////////////////////////////////////////////
@@ -83,6 +84,7 @@ public:
     /// \see `findIntersection`
     ///
     ////////////////////////////////////////////////////////////
+    [[nodiscard]] constexpr bool contains(T x, T y) const;
     [[nodiscard]] constexpr bool contains(Vector2<T> point) const;
 
     ////////////////////////////////////////////////////////////
@@ -95,6 +97,7 @@ public:
     /// \see `contains`
     ///
     ////////////////////////////////////////////////////////////
+    [[nodiscard]] constexpr bool intersects(const Rect<T>& rectangle) const; 
     [[nodiscard]] constexpr std::optional<Rect<T>> findIntersection(const Rect<T>& rectangle) const;
 
     ////////////////////////////////////////////////////////////

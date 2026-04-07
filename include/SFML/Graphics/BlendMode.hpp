@@ -80,7 +80,7 @@ struct SFML_GRAPHICS_API BlendMode
     /// Constructs a blending mode that does alpha blending.
     ///
     ////////////////////////////////////////////////////////////
-    BlendMode() = default;
+    BlendMode();
 
     ////////////////////////////////////////////////////////////
     /// \brief Construct the blend mode given the factors and equation.

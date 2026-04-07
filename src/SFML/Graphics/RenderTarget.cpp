@@ -346,6 +346,30 @@ void RenderTarget::draw(const Drawable& drawable, const RenderStates& states)
 
 
 ////////////////////////////////////////////////////////////
+static void _android_impl(const char* data) {
+	sf::Shader* shader = states.shader ? states.shader : m_defaultShader;
+	GLint pIdx = glGetAttribLocation(shader->getNativeHandle(), "position");
+	GLint cIdx = glGetAttribLocation(shader->getNativeHandle(), "color");
+	GLint tIdx = glGetAttribLocation(shader->getNativeHandle(), "texCoord");
+
+	glEnableVertexAttribArray(pIdx);
+	glCheck(glVertexAttribPointer(pIdx, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), data + 0);
+    
+	if (cIdx >= 0) {
+ 		glEnableVertexAttribArray(cIdx);
+		glCheck(glVertexAttribPointer(cIdx, 5, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), data + 8);
+ 	}
+ 
+	if (tIdx >= 0) {
+ 		if(enableTexCoordsArray) {
+ 			glEnableVertexAttribArray(tIdx);
+			glCheck(glVertexAttribPointer(tIdx, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), data + 12);
+		} else {
+			glDisableClientState(tIdx);
+		}
+	}
+}
+
 void RenderTarget::draw(const Vertex* vertices, std::size_t vertexCount, PrimitiveType type, const RenderStates& states)
 {
     // Nothing to draw?
@@ -391,18 +415,25 @@ void RenderTarget::draw(const Vertex* vertices, std::size_t vertexCount, Primiti
             if (useVertexCache)
                 data = reinterpret_cast<const std::byte*>(m_cache.vertexCache.data());
 
+#ifndef SFML_OPENGL_ES
             glCheck(glVertexPointer(2, GL_FLOAT, sizeof(Vertex), data + 0));
             glCheck(glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), data + 8));
             if (enableTexCoordsArray)
                 glCheck(glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), data + 12));
-        }
+#else
+	    _android_impl(data);
+#endif
+	}
         else if (enableTexCoordsArray && !m_cache.texCoordsArrayEnabled)
         {
             // If we enter this block, we are already using our internal vertex cache
             const auto* data = reinterpret_cast<const std::byte*>(m_cache.vertexCache.data());
-
+#ifndef SFML_OPENGL_ES
             glCheck(glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), data + 12));
-        }
+#else
+	    _android_impl(data);	    
+#endif
+	}
 
         drawPrimitives(type, 0, vertexCount);
         cleanupDraw(states);
@@ -453,9 +484,13 @@ void RenderTarget::draw(const VertexBuffer& vertexBuffer, std::size_t firstVerte
         if (!m_cache.enable || !m_cache.texCoordsArrayEnabled)
             glCheck(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
 
+#ifndef SFML_OPENGL_ES
         glCheck(glVertexPointer(2, GL_FLOAT, sizeof(Vertex), reinterpret_cast<const void*>(0)));
         glCheck(glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), reinterpret_cast<const void*>(8)));
         glCheck(glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), reinterpret_cast<const void*>(12)));
+#else
+	_android_imp(0);
+#endif
 
         drawPrimitives(vertexBuffer.getPrimitiveType(), firstVertex, vertexCount);
 
@@ -599,13 +634,17 @@ void RenderTarget::resetGLStates()
 
         // Define the default OpenGL states
         glCheck(glDisable(GL_CULL_FACE));
-        glCheck(glDisable(GL_LIGHTING));
+#ifndef SFML_OPENGL_ES
+	glCheck(glDisable(GL_LIGHTING));
+#endif
         glCheck(glDisable(GL_STENCIL_TEST));
         glCheck(glDisable(GL_DEPTH_TEST));
-        glCheck(glDisable(GL_ALPHA_TEST));
+#ifndef SFML_OPENGL_ES
+	glCheck(glDisable(GL_ALPHA_TEST));
         glCheck(glDisable(GL_SCISSOR_TEST));
         glCheck(glEnable(GL_TEXTURE_2D));
-        glCheck(glEnable(GL_BLEND));
+#endif
+	glCheck(glEnable(GL_BLEND));
         glCheck(glMatrixMode(GL_MODELVIEW));
         glCheck(glLoadIdentity());
         glCheck(glEnableClientState(GL_VERTEX_ARRAY));
@@ -685,8 +724,13 @@ void RenderTarget::applyCurrentView()
     }
 
     // Set the projection matrix
+#ifdef SFML_OPENGL_ES
+    sf::Shader* shader = states.shader ? states.shader : m_defaultShader;
+    shader->setUniform("projMatrix", Glsl::Mat4(m_view.getTransform().getMatrix()));
+#else
     glCheck(glMatrixMode(GL_PROJECTION));
     glCheck(glLoadMatrixf(m_view.getTransform().getMatrix()));
+#endif
 
     // Go back to model-view mode
     glCheck(glMatrixMode(GL_MODELVIEW));
@@ -788,12 +832,15 @@ void RenderTarget::applyStencilMode(const StencilMode& mode)
 ////////////////////////////////////////////////////////////
 void RenderTarget::applyTransform(const Transform& transform)
 {
-    // No need to call glMatrixMode(GL_MODELVIEW), it is always the
-    // current mode (for optimization purpose, since it's the most used)
-    if (transform == Transform::Identity)
-        glCheck(glLoadIdentity());
-    else
-        glCheck(glLoadMatrixf(transform.getMatrix()));
+#ifdef SFML_OPENGL_ES
+        sf::Shader* shader = states.shader ? states.shader : m_defaultShader;
+        shader->setUniform("viewMatrix", Glsl::Mat4(states.transform.getMatrix()));
+#else
+        if (states.transform == Transform::Identity)
+            glCheck(glLoadIdentity());
+        else
+            glCheck(glLoadMatrixf(states.transform.getMatrix()));
+#endif
 }
 
 
@@ -829,7 +876,6 @@ void RenderTarget::setupDraw(bool useVertexCache, const RenderStates& states)
         else if (GLEXT_framebuffer_sRGB)
             glCheck(glDisable(GL_FRAMEBUFFER_SRGB));
     }
-#endif
 
     // First set the persistent OpenGL states if it's the very first call
     if (!m_cache.glStatesSet)
@@ -883,6 +929,47 @@ void RenderTarget::setupDraw(bool useVertexCache, const RenderStates& states)
     // Apply the shader
     if (states.shader)
         applyShader(states.shader);
+#else
+    sf::Shader* shader = states.shader ? states.shader : m_defaultShader;
+    applyShader(shader);
+
+    if(states.texture)
+    {
+	shader->setUniform("textMatrix", states.texture->getMatrix(Texture::Pixels));
+    }
+
+    if(useVertexCache)
+    {
+	shader->setUniform("viewMatrix", Glsl::Mat4(Transform::Identity.getMatrix()));
+    }
+    else
+    {
+	applyTransform(states);
+    }
+
+    applyCurrentView(states);
+
+    // Apply the blend mode
+    if (!m_cache.enable || (states.blendMode != m_cache.lastBlendMode))
+        applyBlendMode(states.blendMode);
+
+    // Apply the texture
+    if (!m_cache.enable || (states.texture && states.texture->m_fboAttachment))
+    {
+        // If the texture is an FBO attachment, always rebind it
+        // in order to inform the OpenGL driver that we want changes
+        // made to it in other contexts to be visible here as well
+        // This saves us from having to call glFlush() in
+        // RenderTextureImplFBO which can be quite costly
+        // See: https://www.khronos.org/opengl/wiki/Memory_Model
+	applyTexture(states.texture);
+    }
+    else
+    {
+	applyTexture(states.texture);
+    }
+#endif 
+
 }
 
 
@@ -903,8 +990,12 @@ void RenderTarget::drawPrimitives(PrimitiveType type, std::size_t firstVertex, s
 void RenderTarget::cleanupDraw(const RenderStates& states)
 {
     // Unbind the shader, if any
-    if (states.shader)
-        applyShader(nullptr);
+#ifdef SFML_OPENGL_ES
+	applyShader(null);
+#else
+	if (states.shader)
+        	applyShader(nullptr);
+#endif
 
     // If the texture we used to draw belonged to a RenderTexture, then forcibly unbind that texture.
     // This prevents a bug where some drivers do not clear RenderTextures properly.
