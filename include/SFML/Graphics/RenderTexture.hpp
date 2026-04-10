@@ -129,6 +129,8 @@ public:
     /// \return `true` if resizing has been successful, `false` if it failed
     ///
     ////////////////////////////////////////////////////////////
+    [[nodiscard]] bool create(unsigned int width, unsigned int height, bool depthBuffer);
+    [[nodiscard]] bool create(unsigned int width, unsigned int height, const ContextSettings& settings = ContextSettings());
     [[nodiscard]] bool resize(Vector2u size, const ContextSettings& settings = {});
 
     ////////////////////////////////////////////////////////////

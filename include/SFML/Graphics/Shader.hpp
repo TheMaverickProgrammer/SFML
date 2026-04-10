@@ -778,6 +778,12 @@ public:
     ////////////////////////////////////////////////////////////
     void setUniformArray(const std::string& name, const Glsl::Mat4* matrixArray, std::size_t length);
 
+    /// NOTE: I am intentionally not adding setParamter* variants
+    /// to the backport. They've been deprecated for a long time
+    /// and it's easy to use setUniform* variants.
+    /// 					- Mav
+
+
     ////////////////////////////////////////////////////////////
     /// \brief Get the underlying OpenGL handle of the shader.
     ///

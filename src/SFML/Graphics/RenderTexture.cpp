@@ -65,6 +65,16 @@ RenderTexture& RenderTexture::operator=(RenderTexture&&) noexcept = default;
 
 
 ////////////////////////////////////////////////////////////
+bool RenderTexture::create(unsigned int width, unsigned int height, bool depthBuffer)
+{
+	return create(width, height, ContextSettings(depthBuffer ? 32 : 0));
+}
+
+bool RenderTexture::create(unsigned int width, unsigned int height, const ContextSettings& settings) 
+{
+	return resize(Vector2u{width, height}, settings);
+}
+
 bool RenderTexture::resize(Vector2u size, const ContextSettings& settings)
 {
     // Create the texture

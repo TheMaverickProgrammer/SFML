@@ -44,6 +44,11 @@ RenderWindow::RenderWindow(VideoMode mode, const String& title, std::uint32_t st
 }
 
 
+RenderWindow::RenderWindow(VideoMode mode, const String& title, std::uint32_t style, const ContextSettings& settings)
+{
+    Window::create(mode, title, style, State::Windowed, settings);
+}
+
 ////////////////////////////////////////////////////////////
 RenderWindow::RenderWindow(VideoMode mode, const String& title, State state, const ContextSettings& settings)
 {
@@ -102,6 +107,15 @@ bool RenderWindow::setActive(bool active)
     return result;
 }
 
+Image RenderWindow::capture() const {
+    Vector2u windowSize = getSize();
+
+    Texture texture;
+    texture.create(windowSize.x, windowSize.y);
+    texture.update(*this);
+
+    return texture.copyToImage();
+}
 
 ////////////////////////////////////////////////////////////
 void RenderWindow::onCreate()

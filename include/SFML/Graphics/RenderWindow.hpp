@@ -108,6 +108,8 @@ public:
     ////////////////////////////////////////////////////////////
     RenderWindow(VideoMode mode, const String& title, State state, const ContextSettings& settings = {});
 
+    RenderWindow(ViewMode mode, const String& title, std::uint32_t style = Style::Default, const ContextSettings& settings = {});
+
     ////////////////////////////////////////////////////////////
     /// \brief Construct the window from an existing control
     ///
@@ -178,6 +180,9 @@ public:
     ////////////////////////////////////////////////////////////
     [[nodiscard]] bool setActive(bool active = true) override;
 
+ 
+    [[nodiscard]] Image capture() const;
+    
 protected:
     ////////////////////////////////////////////////////////////
     /// \brief Function called after the window has been created

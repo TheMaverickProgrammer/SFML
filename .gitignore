@@ -37,3 +37,6 @@ patch_coverage.cmake
 *.xcscheme
 *.pbxproj
 *.xcuserstate
+
+# Github
+*.swp
